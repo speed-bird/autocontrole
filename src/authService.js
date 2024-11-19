@@ -3,7 +3,7 @@ import axios from 'axios';
 // Fonction pour gérer la connexion avec le backend
 export const login = async (username, password) => {
   try {
-    const response = await axios.post('http://localhost:3001/login', {
+    const response = await axios.post('https://autocontrole-backend-production.up.railway.app/', {
       username,
       password
     });
