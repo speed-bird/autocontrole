@@ -1,54 +1,86 @@
 import React, { useState } from 'react';
-import { login } from './authService'; // Import de la fonction login
-
+import './loginForm.css';
 
 const LoginForm = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [htmlContent, setHtmlContent] = useState(''); // Pour afficher le HTML récupéré
 
-  
-  const handleLogin = async (event) => {
-    event.preventDefault(); // Empêche le rechargement de la page
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Récupérer les valeurs du formulaire
+    const login = e.target.login.value;
+    const password = e.target.password.value;
+
     try {
-      const response = await login(username, password); // Appel de la fonction login
-      setMessage(response.message); // Affiche la réponse du backend
-    } catch (error) {
-      // Vérifiez si l'erreur contient une réponse du serveur
-      if (error.response && error.response.data && error.response.data.message) {
-        setMessage(error.response.data.message); // Affiche le message du backend (par ex. 'Invalid credentials')
+      // Envoi de la requête au backend
+      const response = await fetch('http://localhost:3001/fetch-reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ login, password }),
+      });
+
+      // Vérifier la réponse du serveur
+      if (response.ok) {
+        const data = await response.json();
+
+        // Si le serveur retourne un message spécifique
+        if (data.success && data.data) {
+          setMessage('Réservations récupérées avec succès !');
+          
+          // Mettre à jour le contenu HTML dans le message
+          setHtmlContent(data.data.map(reservation => (
+            <div key={reservation.station}>
+              <h3>{reservation.station}</h3>
+              <div dangerouslySetInnerHTML={{ __html: reservation.html }} />
+            </div>
+          )));
+        } else {
+          setMessage('Aucune réservation disponible ou erreur.');
+        }
       } else {
-        setMessage('Erreur lors de la connexion au serveur'); // Message générique en cas d'erreur réseau
+        const error = await response.text();
+        setMessage(`Erreur : ${error}`);
       }
+    } catch (error) {
+      setMessage('Erreur réseau. Vérifiez le serveur.');
     }
   };
-  
+
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+    <div className="form-container">
+      <form className="login-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="login">Login :</label>
+          <input 
+            type="text" 
+            id="login" 
+            name="login" 
+            defaultValue="robert_jonathan@hotmail.com"
+            required />
         </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+
+        <div className="form-group">
+          <label htmlFor="password">Password :</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            defaultValue="Cuisine7"
+            required />
         </div>
+
         <button type="submit">Login</button>
       </form>
-      {message && <p>{message}</p>} {/* Affiche le message du backend ou erreur */}
+
+      <div className="message-box">{message}</div>
+
+      <div className="html-content">
+        {/* Affichage du HTML récupéré */}
+        {htmlContent}
+      </div>
     </div>
   );
 };

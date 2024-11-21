@@ -1,11 +1,10 @@
 import React from 'react';
-import LoginForm from './LoginForm';
+import LoginForm from './loginForm'; // Import de votre formulaire
 
 const App = () => {
   return (
     <div>
-      <h1>Bienvenue dans l'application</h1>
-      <LoginForm /> {/* Affiche le formulaire de connexion */}
+      <LoginForm />
     </div>
   );
 };
