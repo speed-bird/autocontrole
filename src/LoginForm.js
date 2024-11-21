@@ -14,7 +14,7 @@ const LoginForm = () => {
 
     try {
       // Envoi de la requête au backend
-      const response = await fetch('http://autocontrole-backend-production.up.railway.app/fetch-reservations', {
+      const response = await fetch('http://autocontrole-backend-production.up.railway.app/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
